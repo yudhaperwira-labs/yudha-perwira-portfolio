@@ -7,7 +7,7 @@ import ContactCTA from "@/components/home/ContactCTA";
 
 export default function Home() {
   return (
-    <main className="bg-[#0b0c0e] text-white">
+    <main className="overflow-x-hidden bg-[#0a0b0d] text-white">
       <Hero />
       <AboutPreview />
       <SelectedWork />

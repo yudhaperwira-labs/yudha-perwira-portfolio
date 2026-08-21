@@ -1,68 +1,104 @@
-import Link from "next/link";
+"use client";
 
-const items = [
+import Link from "next/link";
+import { motion } from "framer-motion";
+
+const ease = [0.16, 1, 0.3, 1] as const;
+
+const experience = [
   {
     period: "2023 — Present",
-    company: "PT Bi-Chain Science & Technology",
     role: "IT & QC Support",
+    company: "PT Bi-Chain Science & Technology",
   },
   {
     period: "2016 — 2023",
-    company: "PT Bank Negara Indonesia (Persero) Tbk.",
     role: "IT & Technology / Banking Operations",
+    company: "PT Bank Negara Indonesia (Persero) Tbk.",
   },
   {
     period: "2014 — 2016",
-    company: "PT Bank Maybank Indonesia Tbk.",
     role: "Banking Operations",
+    company: "PT Bank Maybank Indonesia Tbk.",
   },
 ];
 
 export default function ExperiencePreview() {
   return (
-    <section className="border-t border-white/10 bg-[#0c0d0f]">
-      <div className="mx-auto max-w-[1500px] px-6 py-20 lg:px-10">
-        <div className="grid gap-12 lg:grid-cols-[0.7fr_1.3fr]">
+    <section className="bg-[#0a0b0d] py-24 sm:py-28 lg:py-40">
+      <div className="mx-auto max-w-[1500px] px-5 sm:px-7 lg:px-10">
+        <div className="grid gap-14 lg:grid-cols-[0.55fr_1.45fr] lg:gap-20">
           <div>
-            <div className="text-[9px] uppercase tracking-[0.18em] text-white/25">
-              Experience
+            <div className="text-[9px] uppercase tracking-[0.22em] text-white/22">
+              Career
             </div>
 
-            <h2 className="mt-4 max-w-[560px] text-[clamp(3rem,5vw,5.5rem)] font-semibold leading-[0.9] tracking-[-0.06em]">
+            <motion.h2
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.8, ease }}
+              className="mt-7 font-heading text-[clamp(3.3rem,6vw,6.8rem)] font-semibold leading-[0.86] tracking-[-0.065em]"
+            >
               Built across
-              <span className="block text-white/28">
+              <span className="block text-white/22">
                 different environments.
               </span>
-            </h2>
+            </motion.h2>
 
             <Link
               href="/experience"
-              className="mt-8 inline-flex border-b border-white/15 pb-2 text-[9px] uppercase tracking-[0.12em] text-white/40 transition hover:text-white"
+              className="group mt-9 inline-flex items-center gap-4 text-[9px] uppercase tracking-[0.14em] text-white/35 transition hover:text-white"
             >
-              Full Experience →
+              Full experience
+              <span className="h-px w-8 bg-white/20 transition-all group-hover:w-14" />
+              ↗
             </Link>
           </div>
 
-          <div className="border-t border-white/10">
-            {items.map((item, index) => (
-              <div
+          <div className="pt-4 lg:pt-24">
+            {experience.map((item, index) => (
+              <motion.div
                 key={item.company}
-                className="grid gap-4 border-b border-white/10 py-7 md:grid-cols-[120px_1fr]"
+                initial={{
+                  opacity: 0,
+                  y: 24,
+                }}
+                whileInView={{
+                  opacity: 1,
+                  y: 0,
+                }}
+                viewport={{
+                  once: true,
+                  amount: 0.3,
+                }}
+                transition={{
+                  duration: 0.65,
+                  delay: index * 0.08,
+                  ease,
+                }}
+                className={`group relative py-9 ${
+                  index !== experience.length - 1
+                    ? "border-b border-white/[0.07]"
+                    : ""
+                }`}
               >
-                <div className="text-[9px] uppercase tracking-[0.12em] text-white/20">
-                  {item.period}
-                </div>
-
-                <div>
-                  <div className="text-[9px] uppercase tracking-[0.12em] text-white/25">
-                    {item.role}
+                <div className="grid gap-5 md:grid-cols-[150px_1fr]">
+                  <div className="text-[8px] uppercase tracking-[0.13em] text-white/20">
+                    {item.period}
                   </div>
 
-                  <h3 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-white">
-                    {item.company}
-                  </h3>
+                  <div>
+                    <div className="text-[8px] uppercase tracking-[0.14em] text-white/22">
+                      {item.role}
+                    </div>
+
+                    <h3 className="mt-3 max-w-[780px] font-heading text-[clamp(1.8rem,3.5vw,3.4rem)] font-semibold leading-[0.94] tracking-[-0.045em] text-white/72 transition-all duration-500 group-hover:translate-x-2 group-hover:text-white">
+                      {item.company}
+                    </h3>
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

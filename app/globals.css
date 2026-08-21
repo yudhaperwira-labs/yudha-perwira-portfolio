@@ -228,3 +228,88 @@ svg {
     animation: none;
   }
 }
+
+/* ============================================================
+   EDITORIAL MOTION / GLOBAL POLISH
+============================================================ */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #0a0b0d;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgba(255, 255, 255, 0.92);
+  color: #050505;
+}
+
+/* less mechanical visual rhythm */
+
+section {
+  position: relative;
+}
+
+/* subtle page grain */
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+}
+
+/* smooth links */
+
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* elegant scrollbar */
+
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0b0d;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+/* mobile typography safety */
+
+@media (max-width: 767px) {
+  h1,
+  h2,
+  h3 {
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+}
+
+/* reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

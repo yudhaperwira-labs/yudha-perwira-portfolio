@@ -2,14 +2,16 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+
+const ease = [0.16, 1, 0.3, 1] as const;
 
 const projects = [
   {
     id: "01",
     title: "BNI Transformation 4.0",
-    category: "Banking Transformation",
+    category: "Banking Technology",
     image: "/projects/bni-transformation.jpeg",
   },
   {
@@ -38,46 +40,36 @@ const projects = [
   },
 ];
 
-const previewPositions = ["8%", "26%", "44%", "62%", "78%"];
-
 export default function SelectedWork() {
   const [active, setActive] = useState(0);
 
   return (
-    <section
-      id="selected-work"
-      className="relative overflow-hidden border-t border-white/[0.08] bg-[#0c0d0f] text-white"
-    >
-      <div className="mx-auto max-w-[1500px] px-5 py-20 sm:px-6 lg:px-10 lg:py-28">
-        {/* HEADER */}
-        <div className="grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
-          <div>
-            <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-white/25">
-              Selected Work
-            </div>
+    <section className="relative overflow-hidden bg-[#101114] py-24 sm:py-28 lg:py-36">
+      <div className="mx-auto max-w-[1500px] px-5 sm:px-7 lg:px-10">
+        <div className="mb-14 grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
+          <div className="text-[9px] uppercase tracking-[0.22em] text-white/22">
+            Selected Work
           </div>
 
           <div>
-            <h2 className="max-w-[900px] text-[clamp(3rem,6vw,6.5rem)] font-semibold leading-[0.88] tracking-[-0.065em]">
+            <h2 className="font-heading text-[clamp(3.6rem,7vw,7.5rem)] font-semibold leading-[0.84] tracking-[-0.068em]">
               Systems,
-              <span className="block text-white/28">
+              <span className="block text-white/22">
                 networks & real environments.
               </span>
             </h2>
 
-            <p className="mt-6 max-w-[620px] text-sm leading-7 text-white/38">
-              Selected work across banking technology, enterprise
-              infrastructure, network operations, events, and warehouse systems.
+            <p className="mt-7 max-w-[560px] text-[13px] leading-7 text-white/34">
+              Practical implementations across banking, connectivity,
+              infrastructure operations, enterprise events, and warehouse
+              systems.
             </p>
           </div>
         </div>
 
-        {/* =====================================================
-            DESKTOP
-        ====================================================== */}
-        <div className="relative mt-20 hidden lg:block">
-          {/* LIST */}
-          <div className="w-[72%] border-t border-white/[0.09]">
+        {/* DESKTOP */}
+        <div className="relative hidden min-h-[690px] lg:block">
+          <div className="w-[72%]">
             {projects.map((project, index) => {
               const isActive = index === active;
 
@@ -87,92 +79,85 @@ export default function SelectedWork() {
                   href="/work"
                   onMouseEnter={() => setActive(index)}
                   onFocus={() => setActive(index)}
-                  className="group relative block border-b border-white/[0.08]"
+                  className="group block"
                 >
                   <motion.div
                     animate={{
-                      x: isActive ? 14 : 0,
+                      x: isActive ? 18 : 0,
                     }}
                     transition={{
                       duration: 0.45,
-                      ease: [0.16, 1, 0.3, 1],
+                      ease,
                     }}
-                    className="grid min-h-[128px] grid-cols-[55px_1fr_24px] items-center gap-4"
+                    className="relative flex min-h-[132px] items-center gap-6"
                   >
-                    <span
-                      className={`text-[9px] tracking-[0.14em] transition-colors duration-500 ${
-                        isActive ? "text-white/45" : "text-white/18"
-                      }`}
-                    >
+                    <div className="w-[42px] text-[9px] tracking-[0.15em] text-white/18">
                       {project.id}
-                    </span>
+                    </div>
 
-                    <div>
-                      <div
-                        className={`text-[clamp(2.2rem,4vw,4.6rem)] font-medium leading-[0.94] tracking-[-0.055em] transition-colors duration-500 ${
-                          isActive ? "text-white" : "text-white/24"
+                    <div className="min-w-0 flex-1">
+                      <h3
+                        className={`font-heading text-[clamp(2.6rem,4.3vw,4.7rem)] font-semibold leading-[0.9] tracking-[-0.055em] transition-colors duration-500 ${
+                          isActive ? "text-white" : "text-white/20"
                         }`}
                       >
                         {project.title}
-                      </div>
+                      </h3>
 
                       <div
-                        className={`mt-3 text-[8px] uppercase tracking-[0.15em] transition-colors duration-500 ${
-                          isActive ? "text-white/38" : "text-white/15"
+                        className={`mt-3 text-[8px] uppercase tracking-[0.14em] transition-colors ${
+                          isActive ? "text-white/35" : "text-white/12"
                         }`}
                       >
                         {project.category}
                       </div>
                     </div>
 
-                    <motion.span
-                      animate={{
-                        opacity: isActive ? 1 : 0.25,
-                        x: isActive ? 0 : -6,
-                      }}
-                      className="text-lg text-white/55"
+                    <div
+                      className={`text-xl transition ${
+                        isActive ? "text-white/45" : "text-white/10"
+                      }`}
                     >
                       ↗
-                    </motion.span>
+                    </div>
+
+                    <div className="absolute bottom-0 left-[68px] right-0 h-px bg-white/[0.07]" />
                   </motion.div>
                 </Link>
               );
             })}
           </div>
 
-          {/* FLOATING PREVIEW */}
+          {/* FOLLOWING IMAGE */}
           <motion.div
             animate={{
-              top: previewPositions[active],
+              y: active * 122,
             }}
             transition={{
-              duration: 0.65,
-              ease: [0.16, 1, 0.3, 1],
+              duration: 0.7,
+              ease,
             }}
-            className="pointer-events-none absolute right-0 z-20 w-[360px] -translate-y-1/2"
+            className="pointer-events-none absolute right-0 top-6 w-[350px]"
           >
-            <div className="relative aspect-[4/3] overflow-hidden rounded-[18px] border border-white/10 bg-[#15161a] shadow-[0_35px_90px_rgba(0,0,0,0.5)]">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] shadow-[0_40px_100px_rgba(0,0,0,0.45)]">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={projects[active].image}
                   initial={{
                     opacity: 0,
                     scale: 1.06,
-                    y: 12,
                   }}
                   animate={{
                     opacity: 1,
                     scale: 1,
-                    y: 0,
                   }}
                   exit={{
                     opacity: 0,
                     scale: 0.98,
-                    y: -8,
                   }}
                   transition={{
                     duration: 0.45,
-                    ease: [0.16, 1, 0.3, 1],
+                    ease,
                   }}
                   className="absolute inset-0"
                 >
@@ -180,80 +165,53 @@ export default function SelectedWork() {
                     src={projects[active].image}
                     alt={projects[active].title}
                     fill
-                    sizes="360px"
+                    sizes="350px"
                     className="object-cover"
                   />
                 </motion.div>
               </AnimatePresence>
 
               <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
-
-              <div className="absolute bottom-5 left-5 right-5">
-                <div className="text-[8px] uppercase tracking-[0.15em] text-white/45">
-                  {projects[active].category}
-                </div>
-
-                <div className="mt-2 text-lg font-semibold tracking-[-0.035em] text-white">
-                  {projects[active].title}
-                </div>
-              </div>
             </div>
 
-            {/* small pointer */}
-            <div className="absolute left-[-7px] top-1/2 h-3.5 w-3.5 -translate-y-1/2 rotate-45 border-b border-l border-white/10 bg-[#15161a]" />
+            <div className="mt-3 flex justify-between text-[7px] uppercase tracking-[0.14em] text-white/20">
+              <span>{projects[active].category}</span>
+              <span>{projects[active].id}</span>
+            </div>
           </motion.div>
         </div>
 
-        {/* =====================================================
-            MOBILE / TABLET
-        ====================================================== */}
-        <div className="mt-12 space-y-4 lg:hidden">
-          {projects.map((project) => (
+        {/* MOBILE */}
+        <div className="space-y-7 lg:hidden">
+          {projects.map((project, index) => (
             <Link
               key={project.id}
               href="/work"
-              className="group block overflow-hidden border border-white/10 bg-[#111216]"
+              className={`block ${index % 2 === 0 ? "mr-7" : "ml-7"}`}
             >
-              <div className="relative aspect-[16/10] overflow-hidden">
+              <div className="relative aspect-[16/10] overflow-hidden rounded-[2px]">
                 <Image
                   src={project.image}
                   alt={project.title}
                   fill
                   sizes="100vw"
-                  className="object-cover transition-transform duration-700 group-active:scale-[1.025]"
+                  className="object-cover"
                 />
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
-
-                <div className="absolute left-4 top-4 text-[8px] tracking-[0.14em] text-white/55">
-                  {project.id}
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/5 to-transparent" />
 
                 <div className="absolute bottom-4 left-4 right-4">
-                  <div className="text-[8px] uppercase tracking-[0.14em] text-white/45">
-                    {project.category}
+                  <div className="text-[7px] uppercase tracking-[0.14em] text-white/42">
+                    {project.id} · {project.category}
                   </div>
 
-                  <div className="mt-2 flex items-end justify-between gap-4">
-                    <h3 className="max-w-[85%] text-[clamp(1.5rem,6vw,2.2rem)] font-semibold leading-[0.95] tracking-[-0.04em]">
-                      {project.title}
-                    </h3>
-
-                    <span className="text-white/55">↗</span>
-                  </div>
+                  <h3 className="mt-2 font-heading text-[1.7rem] font-semibold leading-[0.95] tracking-[-0.045em]">
+                    {project.title}
+                  </h3>
                 </div>
               </div>
             </Link>
           ))}
-        </div>
-
-        <div className="mt-10 lg:hidden">
-          <Link
-            href="/work"
-            className="inline-flex border-b border-white/20 pb-2 text-[9px] uppercase tracking-[0.13em] text-white/45"
-          >
-            View All Work →
-          </Link>
         </div>
       </div>
     </section>
