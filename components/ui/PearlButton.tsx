@@ -2,54 +2,83 @@
 
 import Link from "next/link";
 import { ArrowUpRight, Download } from "lucide-react";
-import { ReactNode } from "react";
 
 type PearlButtonProps = {
-  href: string;
-  children: ReactNode;
+  children: React.ReactNode;
+  href?: string;
   variant?: "light" | "dark";
   icon?: "arrow" | "download" | "none";
-  external?: boolean;
+  download?: boolean;
+  onClick?: () => void;
+  className?: string;
 };
 
 export default function PearlButton({
-  href,
   children,
-  variant = "dark",
+  href,
+  variant = "light",
   icon = "arrow",
-  external = false,
+  download = false,
+  onClick,
+  className = "",
 }: PearlButtonProps) {
-  const classes =
+  const baseClass = `
+    group
+    relative
+    inline-flex
+    min-h-[52px]
+    items-center
+    justify-center
+    gap-3
+    overflow-hidden
+    rounded-full
+    border
+    px-6
+    text-[9px]
+    font-semibold
+    uppercase
+    tracking-[0.14em]
+    transition-all
+    duration-500
+    ease-out
+  `;
+
+  const variantClass =
     variant === "light"
       ? `
-        group relative inline-flex min-h-[48px] items-center justify-center gap-4
-        overflow-hidden rounded-full border border-white/60
-        bg-white px-7 text-[9px] font-semibold uppercase tracking-[0.14em]
-        text-black shadow-[inset_0_1px_0_rgba(255,255,255,.9),0_12px_35px_rgba(0,0,0,.16)]
-        transition-all duration-500
-        hover:-translate-y-[2px] hover:shadow-[inset_0_1px_0_rgba(255,255,255,.95),0_18px_45px_rgba(0,0,0,.25)]
-      `
+          border-white/80
+          bg-white
+          text-black
+          shadow-[0_12px_45px_rgba(255,255,255,0.08)]
+          hover:-translate-y-0.5
+          hover:shadow-[0_18px_60px_rgba(255,255,255,0.16)]
+        `
       : `
-        group relative inline-flex min-h-[48px] items-center justify-center gap-4
-        overflow-hidden rounded-full border border-white/[0.14]
-        bg-[linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.018))]
-        px-7 text-[9px] font-semibold uppercase tracking-[0.14em]
-        text-white/70
-        shadow-[inset_0_1px_0_rgba(255,255,255,.13),inset_0_-12px_24px_rgba(0,0,0,.2),0_16px_40px_rgba(0,0,0,.2)]
-        backdrop-blur-md transition-all duration-500
-        hover:-translate-y-[2px] hover:border-white/30 hover:text-white
-        hover:shadow-[inset_0_1px_0_rgba(255,255,255,.2),0_22px_52px_rgba(0,0,0,.32)]
-      `;
+          border-white/[0.12]
+          bg-white/[0.025]
+          text-white/65
+          shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]
+          backdrop-blur-xl
+          hover:-translate-y-0.5
+          hover:border-white/25
+          hover:bg-white/[0.06]
+          hover:text-white
+        `;
 
   const content = (
     <>
       <span
-        aria-hidden="true"
         className="
-          pointer-events-none absolute inset-x-[10%] top-[1px] h-[45%]
-          rounded-[999px]
-          bg-gradient-to-b from-white/[0.10] to-transparent
-          opacity-80
+          pointer-events-none
+          absolute
+          inset-x-[12%]
+          top-0
+          h-px
+          bg-gradient-to-r
+          from-transparent
+          via-white/50
+          to-transparent
+          opacity-50
         "
       />
 
@@ -58,9 +87,14 @@ export default function PearlButton({
       {icon === "arrow" && (
         <ArrowUpRight
           size={14}
+          strokeWidth={1.6}
           className="
-            relative z-10 opacity-60 transition-transform duration-300
-            group-hover:-translate-y-0.5 group-hover:translate-x-0.5
+            relative
+            z-10
+            transition-transform
+            duration-300
+            group-hover:translate-x-0.5
+            group-hover:-translate-y-0.5
           "
         />
       )}
@@ -68,26 +102,48 @@ export default function PearlButton({
       {icon === "download" && (
         <Download
           size={14}
+          strokeWidth={1.6}
           className="
-            relative z-10 opacity-60 transition-transform duration-300
+            relative
+            z-10
+            transition-transform
+            duration-300
             group-hover:translate-y-0.5
           "
         />
       )}
+
+      <span
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+          -translate-x-full
+          bg-gradient-to-r
+          from-transparent
+          via-white/[0.08]
+          to-transparent
+          transition-transform
+          duration-700
+          group-hover:translate-x-full
+        "
+      />
     </>
   );
 
-  if (external) {
+  const classes = `${baseClass} ${variantClass} ${className}`;
+
+  if (href) {
     return (
-      <a href={href} target="_blank" rel="noreferrer" className={classes}>
+      <Link href={href} download={download} className={classes}>
         {content}
-      </a>
+      </Link>
     );
   }
 
   return (
-    <Link href={href} className={classes}>
+    <button type="button" onClick={onClick} className={classes}>
       {content}
-    </Link>
+    </button>
   );
 }
