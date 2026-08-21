@@ -1,97 +1,131 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import {
+  ArrowUpRight,
+  Network,
+  Server,
+  MonitorCog,
+  Workflow,
+  ChartNoAxesColumnIncreasing,
+  UsersRound,
+} from "lucide-react";
 
-const areas = [
+const expertise = [
   {
     number: "01",
+    icon: Server,
     title: "Enterprise Infrastructure",
-    detail: "Windows · Endpoints · Shared Services · Multi-site IT",
+    description:
+      "Windows Server, Active Directory, endpoints, shared services and enterprise infrastructure support.",
   },
   {
     number: "02",
+    icon: Network,
     title: "Network Operations",
-    detail: "LAN/WAN · Managed Switching · Branch Connectivity",
+    description:
+      "LAN/WAN, TCP/IP, DNS, DHCP, VLAN, managed switching, VPN and wireless connectivity.",
   },
   {
     number: "03",
+    icon: MonitorCog,
     title: "Systems Administration",
-    detail: "Active Directory · Windows Server · User Administration",
+    description:
+      "Windows environments, account administration, shared services, troubleshooting and endpoint operations.",
   },
   {
     number: "04",
+    icon: Workflow,
     title: "IT Operations",
-    detail: "Incident Handling · RCA · Documentation · Coordination",
+    description:
+      "Incident handling, operational continuity, WMS/SCM support and technical documentation.",
+  },
+  {
+    number: "05",
+    icon: ChartNoAxesColumnIncreasing,
+    title: "Service Management",
+    description:
+      "Incident management, problem analysis, RCA, SLA documentation and operational follow-through.",
+  },
+  {
+    number: "06",
+    icon: UsersRound,
+    title: "Project & Vendor Coordination",
+    description:
+      "Implementation coordination across internal teams, vendors, branches and operational sites.",
   },
 ];
 
 export default function ExpertisePreview() {
   return (
-    <section className="bg-[#101114] py-24 sm:py-28 lg:py-36">
-      <div className="mx-auto max-w-[1500px] px-5 sm:px-7 lg:px-10">
-        <div className="grid gap-14 lg:grid-cols-[0.7fr_1.3fr]">
-          <div>
-            <div className="text-[9px] uppercase tracking-[0.22em] text-white/22">
-              Expertise
-            </div>
-
-            <h2 className="mt-7 font-heading text-[clamp(3.5rem,6vw,6.8rem)] font-semibold leading-[0.86] tracking-[-0.065em]">
-              What I<span className="block text-white/22">work with.</span>
-            </h2>
-
-            <Link
-              href="/expertise"
-              className="mt-9 inline-flex text-[9px] uppercase tracking-[0.14em] text-white/35"
-            >
-              Full capability →
-            </Link>
+    <section className="border-b border-white/[0.07] bg-[#101114]">
+      <div className="mx-auto max-w-[1450px] px-5 py-20 sm:px-8 lg:px-12 lg:py-24">
+        <div className="mx-auto max-w-[940px] text-center">
+          <div className="text-[9px] font-semibold uppercase tracking-[0.2em] text-white/25">
+            Expertise
           </div>
 
-          <div>
-            {areas.map((area, index) => (
-              <motion.div
-                key={area.number}
-                initial={{
-                  opacity: 0,
-                  x: 20,
-                }}
-                whileInView={{
-                  opacity: 1,
-                  x: 0,
-                }}
-                viewport={{
-                  once: true,
-                  amount: 0.3,
-                }}
-                transition={{
-                  duration: 0.6,
-                  delay: index * 0.06,
-                }}
-                className="group relative py-8"
+          <h2 className="mt-5 font-heading text-[clamp(2.6rem,4vw,4.5rem)] font-semibold tracking-[-0.055em] text-white">
+            Core capabilities.
+          </h2>
+
+          <p className="mx-auto mt-4 max-w-[560px] text-[13px] leading-6 text-white/34">
+            Technical capability built through practical enterprise, banking and
+            warehouse operations.
+          </p>
+        </div>
+
+        <div
+          className="
+            mx-auto mt-12
+            grid max-w-[1100px]
+            border-l border-t border-white/[0.08]
+            md:grid-cols-2 lg:grid-cols-3
+          "
+        >
+          {expertise.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <Link
+                href="/expertise"
+                key={item.number}
+                className="
+                  group min-h-[210px]
+                  border-b border-r border-white/[0.08]
+                  p-6 transition-colors duration-400
+                  hover:bg-white/[0.018]
+                "
               >
-                <div className="grid gap-4 sm:grid-cols-[48px_1fr_auto] sm:items-center">
-                  <div className="text-[8px] text-white/18">{area.number}</div>
+                <div className="flex items-center justify-between">
+                  <Icon size={18} strokeWidth={1.4} className="text-white/46" />
 
-                  <div>
-                    <h3 className="font-heading text-[clamp(2rem,4vw,3.8rem)] font-semibold leading-[0.94] tracking-[-0.05em] text-white/28 transition-all duration-500 group-hover:translate-x-3 group-hover:text-white">
-                      {area.title}
-                    </h3>
-
-                    <p className="mt-3 text-[8px] uppercase tracking-[0.12em] text-white/18 transition group-hover:text-white/32">
-                      {area.detail}
-                    </p>
-                  </div>
-
-                  <div className="hidden text-white/15 transition group-hover:text-white/50 sm:block">
-                    ↗
-                  </div>
+                  <span className="text-[8px] tracking-[0.14em] text-white/18">
+                    {item.number}
+                  </span>
                 </div>
 
-                <div className="absolute bottom-0 left-12 right-0 h-px bg-white/[0.07]" />
-              </motion.div>
-            ))}
-          </div>
+                <h3 className="mt-10 text-[18px] font-medium tracking-[-0.025em] text-white/82">
+                  {item.title}
+                </h3>
+
+                <p className="mt-3 text-[11px] leading-5 text-white/27">
+                  {item.description}
+                </p>
+
+                <ArrowUpRight
+                  size={13}
+                  className="
+                    mt-5 text-white/14
+                    transition-all duration-300
+                    group-hover:-translate-y-0.5
+                    group-hover:translate-x-0.5
+                    group-hover:text-white/55
+                  "
+                />
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>

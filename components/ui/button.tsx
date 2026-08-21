@@ -1,58 +1,137 @@
-import { Button as ButtonPrimitive } from "@base-ui/react/button"
-import { cva, type VariantProps } from "class-variance-authority"
+"use client";
 
-import { cn } from "@/lib/utils"
+import Link from "next/link";
+import { ReactNode } from "react";
+import { ArrowUpRight, Download } from "lucide-react";
+import { motion } from "framer-motion";
 
-const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/80",
-        outline:
-          "border-border bg-background shadow-xs hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
-        ghost:
-          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
-        destructive:
-          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
-        link: "text-primary underline-offset-4 hover:underline",
-      },
-      size: {
-        default:
-          "h-9 gap-1.5 px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
-        xs: "h-6 gap-1 rounded-[min(var(--radius-md),8px)] px-2 text-xs in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: "h-8 gap-1 rounded-[min(var(--radius-md),10px)] px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5",
-        lg: "h-10 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
-        icon: "size-9",
-        "icon-xs":
-          "size-6 rounded-[min(var(--radius-md),8px)] in-data-[slot=button-group]:rounded-md [&_svg:not([class*='size-'])]:size-3",
-        "icon-sm":
-          "size-8 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-md",
-        "icon-lg": "size-10",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
+type PearlButtonProps = {
+  href: string;
+  children: ReactNode;
+  variant?: "light" | "dark";
+  icon?: "arrow" | "download" | "none";
+  download?: boolean;
+  external?: boolean;
+};
+
+export default function PearlButton({
+  href,
+  children,
+  variant = "light",
+  icon = "arrow",
+  download = false,
+  external = false,
+}: PearlButtonProps) {
+  const dark = variant === "dark";
+
+  const classes = `
+    group
+    relative
+    inline-flex
+    items-center
+    justify-center
+    gap-3
+    overflow-hidden
+    rounded-full
+    border
+    px-7
+    py-4
+    text-[10px]
+    font-semibold
+    uppercase
+    tracking-[0.14em]
+    transition-all
+    duration-500
+    ${
+      dark
+        ? "border-white/[0.12] bg-white/[0.025] text-white/65 hover:border-white/25 hover:text-white"
+        : "border-white/25 bg-white text-black hover:bg-white/90"
+    }
+  `;
+
+  const content = (
+    <>
+      {/* PEARL GLOW */}
+      <span
+        className={`
+          pointer-events-none
+          absolute
+          inset-x-[10%]
+          top-0
+          h-[42%]
+          rounded-[100%]
+          blur-[12px]
+          transition-opacity
+          duration-500
+          ${dark ? "bg-white/[0.09]" : "bg-white/80"}
+        `}
+      />
+
+      <span className="relative z-10">{children}</span>
+
+      {icon === "arrow" && (
+        <ArrowUpRight
+          size={14}
+          strokeWidth={1.5}
+          className="
+            relative
+            z-10
+            transition-transform
+            duration-500
+            group-hover:-translate-y-0.5
+            group-hover:translate-x-0.5
+          "
+        />
+      )}
+
+      {icon === "download" && (
+        <Download
+          size={14}
+          strokeWidth={1.5}
+          className="
+            relative
+            z-10
+            transition-transform
+            duration-500
+            group-hover:translate-y-0.5
+          "
+        />
+      )}
+    </>
+  );
+
+  if (download) {
+    return (
+      <motion.a
+        whileTap={{ scale: 0.97 }}
+        href={href}
+        download
+        className={classes}
+      >
+        {content}
+      </motion.a>
+    );
   }
-)
 
-function Button({
-  className,
-  variant = "default",
-  size = "default",
-  ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+  if (external) {
+    return (
+      <motion.a
+        whileTap={{ scale: 0.97 }}
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={classes}
+      >
+        {content}
+      </motion.a>
+    );
+  }
+
   return (
-    <ButtonPrimitive
-      data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    />
-  )
+    <motion.div whileTap={{ scale: 0.97 }}>
+      <Link href={href} className={classes}>
+        {content}
+      </Link>
+    </motion.div>
+  );
 }
-
-export { Button, buttonVariants }

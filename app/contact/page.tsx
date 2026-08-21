@@ -1,246 +1,980 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { motion } from "framer-motion";
+import { useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  ArrowLeft,
+  ArrowRight,
+  CalendarDays,
+  Check,
+  Mail,
+  MessageCircle,
+  Phone,
+} from "lucide-react";
 
-const ease = [0.16, 1, 0.3, 1] as const;
+/* =========================================================
+   CUSTOM LINKEDIN ICON
+   Dibuat manual supaya tidak bergantung pada export Lucide
+========================================================= */
 
-const channels = [
-  {
-    number: "01",
-    name: "Email",
-    description: "Professional inquiries",
-    href: "mailto:yudha.perwira92@gmail.com",
-    value: "Send an email",
-  },
-  {
-    number: "02",
-    name: "WhatsApp",
-    description: "Direct conversation",
-    href: "https://wa.me/6287782662123",
-    value: "Start WhatsApp",
-  },
-  {
-    number: "03",
-    name: "Phone",
-    description: "Direct contact",
-    href: "tel:+6287782662123",
-    value: "Call",
-  },
-  {
-    number: "04",
-    name: "LinkedIn",
-    description: "Professional network",
-    href: "https://www.linkedin.com/in/yudhaperwira/",
-    value: "View LinkedIn",
-  },
+function LinkedInIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <rect
+        x="3"
+        y="3"
+        width="18"
+        height="18"
+        rx="2"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+
+      <path
+        d="M8 10V17"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+
+      <path
+        d="M8 7.5V7.51"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+
+      <path
+        d="M12 10V17"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+
+      <path
+        d="M12 13.5C12.4 11.8 15.2 11.2 16.2 12.8C16.6 13.5 16.5 14.4 16.5 15.2V17"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+/* =========================================================
+   TYPES
+========================================================= */
+
+type ContactMethod = "email" | "whatsapp" | "phone" | "linkedin";
+
+/* =========================================================
+   DATE HELPERS
+========================================================= */
+
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
+const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
+function startOfDay(date: Date) {
+  const result = new Date(date);
+  result.setHours(0, 0, 0, 0);
+  return result;
+}
+
+function sameDay(a: Date, b: Date) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
+function formatDate(date: Date) {
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(date);
+}
+
+/* =========================================================
+   MAIN PAGE
+========================================================= */
+
 export default function ContactPage() {
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const today = useMemo(() => startOfDay(new Date()), []);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const [currentMonth, setCurrentMonth] = useState(
+    new Date(today.getFullYear(), today.getMonth(), 1),
+  );
 
-    const cleanEmail = email.trim();
-    const cleanMessage = message.trim();
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-    const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+  const [selectedMethod, setSelectedMethod] = useState<ContactMethod | null>(
+    null,
+  );
 
-    if (!cleanEmail) {
-      setError("Email address is required.");
-      return;
+  const [showCalendar, setShowCalendar] = useState(false);
+
+  /* =======================================================
+     CALENDAR DATA
+  ======================================================= */
+
+  const calendarDays = useMemo(() => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+
+    const firstDay = new Date(year, month, 1);
+    const firstWeekday = firstDay.getDay();
+
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    const previousMonthDays = new Date(year, month, 0).getDate();
+
+    const cells: {
+      date: Date;
+      currentMonth: boolean;
+    }[] = [];
+
+    for (let i = firstWeekday - 1; i >= 0; i--) {
+      cells.push({
+        date: new Date(year, month - 1, previousMonthDays - i),
+        currentMonth: false,
+      });
     }
 
-    if (!emailPattern.test(cleanEmail)) {
-      setError("Please use a valid email address.");
-      return;
+    for (let day = 1; day <= daysInMonth; day++) {
+      cells.push({
+        date: new Date(year, month, day),
+        currentMonth: true,
+      });
     }
 
-    if (!cleanMessage) {
-      setError("Please write a short message.");
-      return;
+    let nextDay = 1;
+
+    while (cells.length < 42) {
+      cells.push({
+        date: new Date(year, month + 1, nextDay),
+        currentMonth: false,
+      });
+
+      nextDay++;
     }
 
-    setError("");
+    return cells;
+  }, [currentMonth]);
 
-    const subject = encodeURIComponent(
-      "Portfolio Inquiry — IT Infrastructure & Operations",
+  /* =======================================================
+     MONTH NAVIGATION
+  ======================================================= */
+
+  const previousMonth = () => {
+    const previous = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth() - 1,
+      1,
     );
 
-    const body = encodeURIComponent(
-      `Hello Yudha,\n\n${cleanMessage}\n\nReply to: ${cleanEmail}`,
-    );
+    const minimumMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    window.location.href = `mailto:yudha.perwira92@gmail.com?subject=${subject}&body=${body}`;
+    if (previous >= minimumMonth) {
+      setCurrentMonth(previous);
+    }
   };
 
+  const nextMonth = () => {
+    setCurrentMonth(
+      new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1),
+    );
+  };
+
+  /* =======================================================
+     CONTACT METHOD
+  ======================================================= */
+
+  const handleContact = (method: ContactMethod) => {
+    if (!selectedDate) return;
+
+    setSelectedMethod(method);
+
+    const date = formatDate(selectedDate);
+
+    const message = encodeURIComponent(
+      `Hello Yudha,
+
+I would like to contact you regarding a professional opportunity.
+
+Preferred contact date:
+${date}
+
+Company:
+Position / Opportunity:
+Additional information:
+
+Best regards`,
+    );
+
+    const subject = encodeURIComponent(
+      "Recruitment / Professional Opportunity",
+    );
+
+    /*
+      GANTI data di bawah sesuai milikmu jika diperlukan.
+    */
+
+    if (method === "email") {
+      window.location.href = `mailto:yudha.perwira92@gmail.com?subject=${subject}&body=${message}`;
+    }
+
+    if (method === "whatsapp") {
+      window.open(
+        `https://wa.me/6287782662123?text=${message}`,
+        "_blank",
+        "noopener,noreferrer",
+      );
+    }
+
+    if (method === "phone") {
+      window.location.href = "tel:+6287782662123";
+    }
+
+    if (method === "linkedin") {
+      window.open(
+        "https://www.linkedin.com/in/yudhaperwira/",
+        "_blank",
+        "noopener,noreferrer",
+      );
+    }
+  };
+
+  /* =======================================================
+     PAGE
+  ======================================================= */
+
   return (
-    <main className="min-h-screen overflow-hidden bg-[#0a0b0d] text-white">
-      {/* HERO */}
+    <main className="min-h-screen bg-[#0b0d0f] text-white overflow-hidden">
+      {/* ===================================================
+          HERO CONTACT
+      =================================================== */}
 
-      <section className="px-5 pb-20 pt-32 sm:px-7 lg:px-10 lg:pb-28 lg:pt-44">
-        <div className="mx-auto max-w-[1500px]">
-          <div className="text-[9px] uppercase tracking-[0.22em] text-white/22">
-            Contact
-          </div>
+      <section className="relative min-h-[82vh] border-b border-white/10">
+        <div className="mx-auto max-w-[1600px] px-6 md:px-12 lg:px-16 pt-28 md:pt-36">
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.8,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          >
+            <span className="text-[11px] tracking-[0.28em] text-white/35 font-semibold">
+              CONTACT
+            </span>
+          </motion.div>
 
-          <div className="mt-8 overflow-hidden">
-            <motion.h1
-              initial={{
-                y: "105%",
-              }}
-              animate={{
-                y: 0,
-              }}
-              transition={{
-                duration: 0.95,
-                ease,
-              }}
-              className="max-w-[1250px] font-heading text-[clamp(4rem,9vw,9rem)] font-semibold leading-[0.79] tracking-[-0.075em]"
-            >
-              Opportunities,
-              <span className="block text-white/22">
-                projects & conversations.
-              </span>
-            </motion.h1>
-          </div>
-        </div>
-      </section>
+          <div className="grid lg:grid-cols-12 gap-10 mt-24 md:mt-32">
+            {/* LEFT SIDE */}
 
-      {/* CHANNELS */}
-
-      <section className="px-5 py-20 sm:px-7 lg:px-10 lg:py-28">
-        <div className="mx-auto max-w-[1500px]">
-          <div className="lg:ml-[25%]">
-            {channels.map((channel, index) => (
-              <motion.a
-                key={channel.number}
-                href={channel.href}
-                target={
-                  channel.name === "LinkedIn" || channel.name === "WhatsApp"
-                    ? "_blank"
-                    : undefined
-                }
-                rel="noreferrer"
-                initial={{
-                  opacity: 0,
-                  x: 18,
-                }}
-                whileInView={{
-                  opacity: 1,
-                  x: 0,
-                }}
-                viewport={{
-                  once: true,
-                  amount: 0.3,
-                }}
+            <div className="lg:col-span-6">
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{
-                  duration: 0.6,
-                  delay: index * 0.05,
-                  ease,
+                  duration: 0.9,
+                  delay: 0.1,
+                  ease: [0.22, 1, 0.36, 1],
                 }}
-                className="group relative block py-8"
+                className="
+                  text-[clamp(3.5rem,7vw,8rem)]
+                  leading-[0.88]
+                  tracking-[-0.055em]
+                  font-medium
+                "
               >
-                <div className="grid gap-3 sm:grid-cols-[50px_150px_1fr_auto] sm:items-center">
-                  <span className="text-[8px] text-white/17">
-                    {channel.number}
-                  </span>
+                Let&apos;s talk
+                <br />
+                <span className="text-white/25">infrastructure.</span>
+              </motion.h1>
+            </div>
 
-                  <div>
-                    <div className="text-[9px] uppercase tracking-[0.14em] text-white/35">
-                      {channel.name}
-                    </div>
+            {/* RIGHT SIDE */}
 
-                    <div className="mt-1 text-[8px] text-white/18">
-                      {channel.description}
-                    </div>
-                  </div>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.9,
+                delay: 0.2,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className="
+                lg:col-span-5
+                lg:col-start-8
+                flex
+                flex-col
+                justify-end
+                pb-8
+              "
+            >
+              <p className="text-lg md:text-xl leading-relaxed text-white/55 max-w-xl">
+                For IT Infrastructure, System Administration, IT Operations,
+                technical projects, or professional collaboration.
+              </p>
 
-                  <div className="font-heading text-[clamp(1.8rem,3vw,3rem)] font-semibold tracking-[-0.04em] text-white/32 transition-all duration-500 group-hover:translate-x-3 group-hover:text-white">
-                    {channel.value}
-                  </div>
+              <p className="mt-5 text-sm leading-relaxed text-white/35 max-w-lg">
+                Recruiters, hiring managers, and business leaders can contact me
+                directly or schedule a preferred date for a conversation.
+              </p>
 
-                  <span className="hidden text-white/20 transition group-hover:text-white sm:block">
-                    ↗
-                  </span>
-                </div>
+              <div className="mt-10 flex flex-wrap gap-4">
+                <button
+                  onClick={() => setShowCalendar(true)}
+                  className="
+                    group
+                    relative
+                    inline-flex
+                    items-center
+                    gap-3
+                    rounded-full
+                    border
+                    border-white/15
+                    bg-white/[0.04]
+                    px-7
+                    py-4
+                    text-[11px]
+                    font-semibold
+                    tracking-[0.18em]
+                    transition-all
+                    duration-500
+                    hover:bg-white
+                    hover:text-black
+                    hover:border-white
+                  "
+                >
+                  <CalendarDays size={17} strokeWidth={1.5} />
+                  SCHEDULE CONTACT
+                  <ArrowRight
+                    size={15}
+                    className="
+                      transition-transform
+                      duration-500
+                      group-hover:translate-x-1
+                    "
+                  />
+                </button>
 
-                <div className="absolute bottom-0 left-[50px] right-0 h-px bg-white/[0.07]" />
-              </motion.a>
-            ))}
+                <a
+                  href="#direct-contact"
+                  className="
+                    group
+                    inline-flex
+                    items-center
+                    gap-3
+                    rounded-full
+                    px-6
+                    py-4
+                    text-[11px]
+                    font-semibold
+                    tracking-[0.18em]
+                    text-white/50
+                    transition-colors
+                    hover:text-white
+                  "
+                >
+                  DIRECT CONTACT
+                  <ArrowRight
+                    size={14}
+                    className="
+                      transition-transform
+                      duration-500
+                      group-hover:translate-x-1
+                    "
+                  />
+                </a>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* FORM */}
+      {/* ===================================================
+          DIRECT CONTACT
+      =================================================== */}
 
-      <section className="px-5 py-24 sm:px-7 lg:px-10 lg:py-36">
-        <div className="mx-auto max-w-[1500px]">
-          <div className="grid gap-14 lg:grid-cols-[0.7fr_1.3fr] lg:gap-20">
-            <div>
-              <div className="text-[9px] uppercase tracking-[0.18em] text-white/20">
-                Send an Inquiry
-              </div>
+      <section id="direct-contact" className="relative py-28 md:py-40">
+        <div className="mx-auto max-w-[1600px] px-6 md:px-12 lg:px-16">
+          <span className="text-[11px] tracking-[0.28em] text-white/35 font-semibold">
+            DIRECT CONTACT
+          </span>
 
-              <h2 className="mt-6 max-w-[500px] font-heading text-[clamp(3rem,5vw,5.4rem)] font-semibold leading-[0.86] tracking-[-0.06em]">
-                Tell me what
-                <span className="block text-white/22">you’re working on.</span>
+          <div className="grid lg:grid-cols-12 gap-12 mt-16">
+            <div className="lg:col-span-5">
+              <h2
+                className="
+                  text-4xl
+                  md:text-6xl
+                  tracking-[-0.045em]
+                  leading-[0.95]
+                  font-medium
+                "
+              >
+                Choose how
+                <br />
+                <span className="text-white/25">we connect.</span>
               </h2>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-10">
-              <div>
-                <label className="text-[8px] uppercase tracking-[0.14em] text-white/24">
-                  Your Email
-                </label>
+            <div className="lg:col-span-6 lg:col-start-7">
+              <div className="space-y-2">
+                <DirectContactRow
+                  icon={<Mail size={20} />}
+                  title="Email"
+                  description="Recruitment & professional inquiries"
+                  href="mailto:YOUR_EMAIL@example.com"
+                />
 
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(event) => {
-                    setEmail(event.target.value);
-                    setError("");
-                  }}
-                  placeholder="name@company.com"
-                  autoComplete="email"
-                  className="mt-3 w-full border-0 border-b border-white/15 bg-transparent py-4 text-xl text-white outline-none transition focus:border-white/50 placeholder:text-white/12"
+                <DirectContactRow
+                  icon={<MessageCircle size={20} />}
+                  title="WhatsApp"
+                  description="Direct professional communication"
+                  href="https://wa.me/628XXXXXXXXXX"
+                />
+
+                <DirectContactRow
+                  icon={<Phone size={20} />}
+                  title="Phone"
+                  description="Voice call for scheduled discussions"
+                  href="tel:+628XXXXXXXXXX"
+                />
+
+                <DirectContactRow
+                  icon={<LinkedInIcon size={20} />}
+                  title="LinkedIn"
+                  description="Professional profile & networking"
+                  href="https://www.linkedin.com/in/YOUR-LINKEDIN/"
                 />
               </div>
-
-              <div>
-                <label className="text-[8px] uppercase tracking-[0.14em] text-white/24">
-                  Message
-                </label>
-
-                <textarea
-                  value={message}
-                  onChange={(event) => {
-                    setMessage(event.target.value);
-                    setError("");
-                  }}
-                  rows={5}
-                  placeholder="Tell me briefly about the role, project, or opportunity..."
-                  className="mt-3 w-full resize-none border-0 border-b border-white/15 bg-transparent py-4 text-base leading-7 text-white outline-none transition focus:border-white/50 placeholder:text-white/12"
-                />
-              </div>
-
-              {error && <p className="text-[10px] text-red-300/70">{error}</p>}
-
-              <button
-                type="submit"
-                className="group inline-flex items-center gap-5 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/45 transition hover:text-white"
-              >
-                Compose Email
-                <span className="h-px w-10 bg-white/20 transition-all duration-500 group-hover:w-16" />
-                ↗
-              </button>
-            </form>
+            </div>
           </div>
         </div>
       </section>
+
+      {/* ===================================================
+          CALENDAR MODAL
+      =================================================== */}
+
+      <AnimatePresence>
+        {showCalendar && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={() => setShowCalendar(false)}
+            className="
+              fixed
+              inset-0
+              z-[100]
+              flex
+              items-center
+              justify-center
+              bg-black/80
+              backdrop-blur-xl
+              p-4
+              md:p-8
+            "
+          >
+            <motion.div
+              initial={{
+                opacity: 0,
+                scale: 0.96,
+                y: 25,
+              }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                y: 0,
+              }}
+              exit={{
+                opacity: 0,
+                scale: 0.97,
+                y: 15,
+              }}
+              transition={{
+                duration: 0.45,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              onClick={(e) => e.stopPropagation()}
+              className="
+                relative
+                w-full
+                max-w-5xl
+                max-h-[92vh]
+                overflow-y-auto
+                rounded-[28px]
+                border
+                border-white/10
+                bg-[#0c0e10]
+                p-6
+                md:p-10
+                shadow-2xl
+              "
+            >
+              {/* MODAL HEADER */}
+
+              <div
+                className="
+                  flex
+                  flex-col
+                  md:flex-row
+                  md:items-center
+                  justify-between
+                  gap-6
+                  mb-8
+                "
+              >
+                <div>
+                  <span className="text-[10px] tracking-[0.25em] text-white/30">
+                    SCHEDULE CONTACT
+                  </span>
+
+                  <h3 className="mt-2 text-2xl md:text-3xl font-medium tracking-tight">
+                    Select a preferred date.
+                  </h3>
+
+                  <p className="mt-2 text-sm text-white/40">
+                    Past dates are unavailable.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setShowCalendar(false)}
+                  className="
+                    self-start
+                    md:self-auto
+                    rounded-full
+                    border
+                    border-white/10
+                    px-5
+                    py-2.5
+                    text-[10px]
+                    tracking-[0.18em]
+                    text-white/50
+                    transition
+                    hover:bg-white
+                    hover:text-black
+                  "
+                >
+                  CLOSE
+                </button>
+              </div>
+
+              {/* CALENDAR HEADER */}
+
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <div className="text-xl font-medium">
+                    {monthNames[currentMonth.getMonth()]}{" "}
+                    {currentMonth.getFullYear()}
+                  </div>
+
+                  <div className="text-xs text-white/35 mt-1">
+                    {selectedDate
+                      ? formatDate(selectedDate)
+                      : "No date selected"}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={previousMonth}
+                    className="
+                      flex
+                      h-10
+                      w-10
+                      items-center
+                      justify-center
+                      rounded-full
+                      border
+                      border-white/10
+                      text-white/50
+                      transition
+                      hover:bg-white
+                      hover:text-black
+                    "
+                  >
+                    <ArrowLeft size={16} />
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      setCurrentMonth(
+                        new Date(today.getFullYear(), today.getMonth(), 1),
+                      )
+                    }
+                    className="
+                      rounded-full
+                      border
+                      border-white/10
+                      px-5
+                      py-3
+                      text-[10px]
+                      tracking-[0.16em]
+                      transition
+                      hover:bg-white
+                      hover:text-black
+                    "
+                  >
+                    TODAY
+                  </button>
+
+                  <button
+                    onClick={nextMonth}
+                    className="
+                      flex
+                      h-10
+                      w-10
+                      items-center
+                      justify-center
+                      rounded-full
+                      border
+                      border-white/10
+                      text-white/50
+                      transition
+                      hover:bg-white
+                      hover:text-black
+                    "
+                  >
+                    <ArrowRight size={16} />
+                  </button>
+                </div>
+              </div>
+
+              {/* DAYS */}
+
+              <div className="grid grid-cols-7 border-l border-t border-white/[0.08]">
+                {dayNames.map((day) => (
+                  <div
+                    key={day}
+                    className="
+                      border-r
+                      border-b
+                      border-white/[0.08]
+                      py-4
+                      text-center
+                      text-[9px]
+                      font-semibold
+                      tracking-[0.16em]
+                      text-white/35
+                    "
+                  >
+                    {day}
+                  </div>
+                ))}
+
+                {calendarDays.map((item, index) => {
+                  const disabled = item.date < today;
+
+                  const selected =
+                    selectedDate && sameDay(item.date, selectedDate);
+
+                  const isToday = sameDay(item.date, today);
+
+                  return (
+                    <button
+                      key={index}
+                      disabled={disabled}
+                      onClick={() => {
+                        if (!disabled) {
+                          setSelectedDate(item.date);
+                          setSelectedMethod(null);
+                        }
+                      }}
+                      className={`
+                        relative
+                        min-h-[72px]
+                        md:min-h-[92px]
+                        border-r
+                        border-b
+                        border-white/[0.08]
+                        p-3
+                        text-left
+                        transition-all
+                        duration-300
+
+                        ${
+                          disabled
+                            ? "cursor-not-allowed text-white/10"
+                            : "hover:bg-white/[0.05]"
+                        }
+
+                        ${item.currentMonth ? "" : "text-white/20"}
+                      `}
+                    >
+                      <span
+                        className={`
+                          inline-flex
+                          h-8
+                          min-w-8
+                          items-center
+                          justify-center
+                          rounded-full
+                          text-xs
+
+                          ${
+                            selected
+                              ? "bg-white text-black"
+                              : isToday
+                                ? "border border-white/30 text-white"
+                                : ""
+                          }
+                        `}
+                      >
+                        {item.date.getDate()}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* CONTACT METHOD AFTER DATE */}
+
+              <AnimatePresence>
+                {selectedDate && (
+                  <motion.div
+                    initial={{
+                      opacity: 0,
+                      y: 20,
+                      height: 0,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                      height: "auto",
+                    }}
+                    exit={{
+                      opacity: 0,
+                      height: 0,
+                    }}
+                    transition={{
+                      duration: 0.45,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pt-8">
+                      <div className="border-t border-white/10 pt-8">
+                        <span className="text-[10px] tracking-[0.22em] text-white/30">
+                          SELECT CONTACT METHOD
+                        </span>
+
+                        <h4 className="mt-3 text-xl md:text-2xl">
+                          {formatDate(selectedDate)}
+                        </h4>
+
+                        <p className="mt-2 text-sm text-white/40">
+                          Choose your preferred communication channel.
+                        </p>
+
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-7">
+                          <ContactMethodButton
+                            icon={<Mail size={18} />}
+                            label="EMAIL"
+                            active={selectedMethod === "email"}
+                            onClick={() => handleContact("email")}
+                          />
+
+                          <ContactMethodButton
+                            icon={<MessageCircle size={18} />}
+                            label="WHATSAPP"
+                            active={selectedMethod === "whatsapp"}
+                            onClick={() => handleContact("whatsapp")}
+                          />
+
+                          <ContactMethodButton
+                            icon={<Phone size={18} />}
+                            label="PHONE"
+                            active={selectedMethod === "phone"}
+                            onClick={() => handleContact("phone")}
+                          />
+
+                          <ContactMethodButton
+                            icon={<LinkedInIcon size={18} />}
+                            label="LINKEDIN"
+                            active={selectedMethod === "linkedin"}
+                            onClick={() => handleContact("linkedin")}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
+  );
+}
+
+/* =========================================================
+   DIRECT CONTACT ROW
+========================================================= */
+
+function DirectContactRow({
+  icon,
+  title,
+  description,
+  href,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  href: string;
+}) {
+  return (
+    <motion.a
+      href={href}
+      target={href.startsWith("http") ? "_blank" : undefined}
+      rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+      whileHover={{ x: 5 }}
+      transition={{
+        duration: 0.25,
+      }}
+      className="
+        group
+        flex
+        items-center
+        justify-between
+        border-b
+        border-white/10
+        py-7
+        transition-colors
+        duration-300
+        hover:border-white/30
+      "
+    >
+      <div className="flex items-center gap-5">
+        <div
+          className="
+            flex
+            h-11
+            w-11
+            items-center
+            justify-center
+            rounded-full
+            border
+            border-white/10
+            text-white/45
+            transition-all
+            duration-300
+            group-hover:bg-white
+            group-hover:text-black
+          "
+        >
+          {icon}
+        </div>
+
+        <div>
+          <div className="text-base font-medium">{title}</div>
+
+          <div className="mt-1 text-xs text-white/35">{description}</div>
+        </div>
+      </div>
+
+      <ArrowRight
+        size={17}
+        className="
+          text-white/30
+          transition-all
+          duration-300
+          group-hover:text-white
+          group-hover:translate-x-1
+        "
+      />
+    </motion.a>
+  );
+}
+
+/* =========================================================
+   CONTACT METHOD BUTTON
+========================================================= */
+
+function ContactMethodButton({
+  icon,
+  label,
+  active,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <motion.button
+      whileTap={{
+        scale: 0.97,
+      }}
+      onClick={onClick}
+      className={`
+        group
+        flex
+        items-center
+        justify-between
+        rounded-full
+        border
+        px-5
+        py-4
+        text-[10px]
+        font-semibold
+        tracking-[0.16em]
+        transition-all
+        duration-300
+
+        ${
+          active
+            ? "border-white bg-white text-black"
+            : "border-white/10 bg-white/[0.02] text-white/60 hover:border-white/30 hover:text-white"
+        }
+      `}
+    >
+      <span className="flex items-center gap-3">
+        {active ? <Check size={16} /> : icon}
+
+        {label}
+      </span>
+
+      <ArrowRight
+        size={14}
+        className="
+          transition-transform
+          duration-300
+          group-hover:translate-x-1
+        "
+      />
+    </motion.button>
   );
 }

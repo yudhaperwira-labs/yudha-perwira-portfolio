@@ -1,218 +1,150 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { ArrowRight } from "lucide-react";
 
-const ease = [0.16, 1, 0.3, 1] as const;
+import {
+  ProjectShowcase,
+  ShowcaseProject,
+} from "@/components/ui/project-showcase";
 
-const projects = [
+const projects: ShowcaseProject[] = [
   {
-    id: "01",
     title: "BNI Transformation 4.0",
-    category: "Banking Technology",
+    description:
+      "Regional support for biometric verification, DigiCS, online queue systems, and customer-facing banking technology.",
+    year: "2016–23",
+    href: "/work#bni-transformation",
     image: "/projects/bni-transformation.jpeg",
+    category: "Banking Transformation",
   },
   {
-    id: "02",
-    title: "Enterprise Event IT",
-    category: "Enterprise Infrastructure",
+    title: "Enterprise Event IT Infrastructure",
+    description:
+      "Field infrastructure and connectivity supporting business-critical enterprise and banking events.",
+    year: "2016–23",
+    href: "/work#enterprise-event",
     image: "/projects/enterprise-event.jpeg",
+    category: "Enterprise Infrastructure",
   },
   {
-    id: "03",
-    title: "SD-WAN & Branch Network",
-    category: "Connectivity Operations",
+    title: "SD-WAN & Branch Network Operations",
+    description:
+      "Branch connectivity, appliance implementation, deployment validation, and operational troubleshooting.",
+    year: "2016–23",
+    href: "/work#sdwan-network",
     image: "/projects/sdwan-network.jpeg",
+    category: "Network Operations",
   },
   {
-    id: "04",
-    title: "Network & Infrastructure Operations",
-    category: "Infrastructure",
-    image: "/projects/network-infrastructure.jpeg",
-  },
-  {
-    id: "05",
-    title: "Warehouse Systems",
-    category: "Operational Technology",
+    title: "SCM–CCTV System Integration",
+    description:
+      "Warehouse operational systems, SCM support, CCTV validation, and multi-site technical operations.",
+    year: "2023–Now",
+    href: "/work#warehouse-systems",
     image: "/projects/warehouse-systems.jpg",
+    category: "Warehouse Technology",
+  },
+  {
+    title: "IT Infrastructure & Network Operations",
+    description:
+      "Servers, enterprise endpoints, managed switching, wireless access, and technical operations across multiple environments.",
+    year: "2016–Now",
+    href: "/work#infrastructure",
+    image: "/projects/network-infrastructure.jpeg",
+    category: "Infrastructure",
   },
 ];
 
 export default function SelectedWork() {
-  const [active, setActive] = useState(0);
-
   return (
-    <section className="relative overflow-hidden bg-[#101114] py-24 sm:py-28 lg:py-36">
-      <div className="mx-auto max-w-[1500px] px-5 sm:px-7 lg:px-10">
-        <div className="mb-14 grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
-          <div className="text-[9px] uppercase tracking-[0.22em] text-white/22">
-            Selected Work
-          </div>
-
+    <section
+      className="
+        border-y
+        border-white/[0.07]
+        bg-[#0f1012]
+      "
+    >
+      <div
+        className="
+          mx-auto
+          max-w-[1500px]
+          px-6
+          py-20
+          md:px-10
+          lg:px-14
+          lg:py-24
+        "
+      >
+        <div
+          className="
+            mb-14
+            grid
+            gap-8
+            lg:grid-cols-[0.72fr_1.28fr]
+          "
+        >
           <div>
-            <h2 className="font-heading text-[clamp(3.6rem,7vw,7.5rem)] font-semibold leading-[0.84] tracking-[-0.068em]">
-              Systems,
-              <span className="block text-white/22">
-                networks & real environments.
-              </span>
-            </h2>
-
-            <p className="mt-7 max-w-[560px] text-[13px] leading-7 text-white/34">
-              Practical implementations across banking, connectivity,
-              infrastructure operations, enterprise events, and warehouse
-              systems.
-            </p>
-          </div>
-        </div>
-
-        {/* DESKTOP */}
-        <div className="relative hidden min-h-[690px] lg:block">
-          <div className="w-[72%]">
-            {projects.map((project, index) => {
-              const isActive = index === active;
-
-              return (
-                <Link
-                  key={project.id}
-                  href="/work"
-                  onMouseEnter={() => setActive(index)}
-                  onFocus={() => setActive(index)}
-                  className="group block"
-                >
-                  <motion.div
-                    animate={{
-                      x: isActive ? 18 : 0,
-                    }}
-                    transition={{
-                      duration: 0.45,
-                      ease,
-                    }}
-                    className="relative flex min-h-[132px] items-center gap-6"
-                  >
-                    <div className="w-[42px] text-[9px] tracking-[0.15em] text-white/18">
-                      {project.id}
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <h3
-                        className={`font-heading text-[clamp(2.6rem,4.3vw,4.7rem)] font-semibold leading-[0.9] tracking-[-0.055em] transition-colors duration-500 ${
-                          isActive ? "text-white" : "text-white/20"
-                        }`}
-                      >
-                        {project.title}
-                      </h3>
-
-                      <div
-                        className={`mt-3 text-[8px] uppercase tracking-[0.14em] transition-colors ${
-                          isActive ? "text-white/35" : "text-white/12"
-                        }`}
-                      >
-                        {project.category}
-                      </div>
-                    </div>
-
-                    <div
-                      className={`text-xl transition ${
-                        isActive ? "text-white/45" : "text-white/10"
-                      }`}
-                    >
-                      ↗
-                    </div>
-
-                    <div className="absolute bottom-0 left-[68px] right-0 h-px bg-white/[0.07]" />
-                  </motion.div>
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* FOLLOWING IMAGE */}
-          <motion.div
-            animate={{
-              y: active * 122,
-            }}
-            transition={{
-              duration: 0.7,
-              ease,
-            }}
-            className="pointer-events-none absolute right-0 top-6 w-[350px]"
-          >
-            <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] shadow-[0_40px_100px_rgba(0,0,0,0.45)]">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={projects[active].image}
-                  initial={{
-                    opacity: 0,
-                    scale: 1.06,
-                  }}
-                  animate={{
-                    opacity: 1,
-                    scale: 1,
-                  }}
-                  exit={{
-                    opacity: 0,
-                    scale: 0.98,
-                  }}
-                  transition={{
-                    duration: 0.45,
-                    ease,
-                  }}
-                  className="absolute inset-0"
-                >
-                  <Image
-                    src={projects[active].image}
-                    alt={projects[active].title}
-                    fill
-                    sizes="350px"
-                    className="object-cover"
-                  />
-                </motion.div>
-              </AnimatePresence>
-
-              <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
-            </div>
-
-            <div className="mt-3 flex justify-between text-[7px] uppercase tracking-[0.14em] text-white/20">
-              <span>{projects[active].category}</span>
-              <span>{projects[active].id}</span>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* MOBILE */}
-        <div className="space-y-7 lg:hidden">
-          {projects.map((project, index) => (
-            <Link
-              key={project.id}
-              href="/work"
-              className={`block ${index % 2 === 0 ? "mr-7" : "ml-7"}`}
+            <h2
+              className="
+                max-w-[440px]
+                text-[clamp(2.6rem,4vw,4.5rem)]
+                font-medium
+                leading-[0.92]
+                tracking-[-0.055em]
+              "
             >
-              <div className="relative aspect-[16/10] overflow-hidden rounded-[2px]">
-                <Image
-                  src={project.image}
-                  alt={project.title}
-                  fill
-                  sizes="100vw"
-                  className="object-cover"
-                />
+              Work that supports
+              <span className="block text-white/24">real operations.</span>
+            </h2>
+          </div>
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/5 to-transparent" />
+          <div className="max-w-[630px] lg:pt-2">
+            <p
+              className="
+                text-[13px]
+                leading-7
+                text-white/37
+              "
+            >
+              A focused selection of enterprise infrastructure, banking
+              technology, network operations, and warehouse systems I have
+              supported throughout my professional experience.
+            </p>
 
-                <div className="absolute bottom-4 left-4 right-4">
-                  <div className="text-[7px] uppercase tracking-[0.14em] text-white/42">
-                    {project.id} · {project.category}
-                  </div>
-
-                  <h3 className="mt-2 font-heading text-[1.7rem] font-semibold leading-[0.95] tracking-[-0.045em]">
-                    {project.title}
-                  </h3>
-                </div>
-              </div>
+            <Link
+              href="/work"
+              className="
+                group
+                mt-6
+                inline-flex
+                items-center
+                gap-4
+                text-[8px]
+                font-semibold
+                uppercase
+                tracking-[0.14em]
+                text-white/30
+                transition
+                hover:text-white
+              "
+            >
+              View Project Archive
+              <span
+                className="
+                  h-px
+                  w-8
+                  bg-white/15
+                  transition-all
+                  group-hover:w-12
+                "
+              />
+              <ArrowRight size={11} />
             </Link>
-          ))}
+          </div>
         </div>
+
+        <ProjectShowcase projects={projects} />
       </div>
     </section>
   );
